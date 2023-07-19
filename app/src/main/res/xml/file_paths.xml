@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <root-path
+        name="app"
+        path="/storage/emulated/0/Android/data/com.hoheiya.appupdater/files" />
+</resources>

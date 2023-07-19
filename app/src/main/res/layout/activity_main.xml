@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    android:focusable="false"
+    tools:context=".view.MainActivity">
+
+    <com.xuexiang.xui.widget.tabbar.EasyIndicator
+        android:id="@+id/ei_records"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        app:indicator_height="@dimen/height_indicator"
+        app:indicator_line_height="3dp"
+        app:indicator_line_show="true"
+        app:indicator_normal_color="@color/black"
+        app:indicator_select_textSize="@dimen/text_size_big"
+        app:indicator_selected_color="@color/content_color"
+        app:indicator_textSize="@dimen/text_size_middle1"
+        app:indicator_width="0dp" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/vp_records"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/layout_bg_select_border"
+    android:padding="15dp">
+
+    <ImageView
+        android:id="@+id/iv_item_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginTop="10dp"
+        android:text="应用名称"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_size_middle1"
+        app:layout_constraintEnd_toEndOf="@id/iv_item_icon"
+        app:layout_constraintStart_toStartOf="@id/iv_item_icon"
+        app:layout_constraintTop_toBottomOf="@id/iv_item_icon" />
+    <TextView
+        android:id="@+id/tv_item_unittype"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="适用：PHONE"
+        android:textColor="@color/gray_7"
+        android:textSize="@dimen/text_size_small"
+        app:layout_constraintEnd_toEndOf="@id/iv_item_icon"
+        app:layout_constraintStart_toStartOf="@id/iv_item_icon"
+        app:layout_constraintTop_toBottomOf="@id/tv_item_name" />
+
+    <TextView
+        android:id="@+id/tv_item_updateinfo"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="新版本：1.1"
+        android:textColor="@color/gray_7"
+        android:textSize="@dimen/text_size_small"
+        app:layout_constraintEnd_toEndOf="@id/iv_item_icon"
+        app:layout_constraintStart_toStartOf="@id/iv_item_icon"
+        app:layout_constraintTop_toBottomOf="@id/tv_item_unittype" />
+
+
+    <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+        android:id="@+id/bt_item_download"
+        style="@style/RoundButton.Auto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/update"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_item_updateinfo" />
+
+
+    <com.xuexiang.xui.widget.progress.CircleProgressView
+        android:id="@+id/pb_item"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        app:cpv_animate_type="AccelerateDecelerateInterpolator"
+        app:cpv_circle_broken="false"
+        app:cpv_end_color="#00EEFA"
+        android:visibility="gone"
+        app:cpv_end_progress="78"
+        app:cpv_isFilled="false"
+        app:cpv_isTracked="true"
+        app:cpv_progress_duration="2000"
+        app:cpv_progress_textColor="#28AAFB"
+        app:cpv_progress_textSize="18sp"
+        app:cpv_progress_width="8dp"
+        app:cpv_start_color="#0052a3"
+        app:cpv_start_progress="0"
+        app:cpv_track_color="#22FFF5"
+        app:cpv_track_width="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_item_updateinfo" />
+</androidx.constraintlayout.widget.ConstraintLayout>
