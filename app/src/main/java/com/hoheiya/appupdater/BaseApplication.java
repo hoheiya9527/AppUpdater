@@ -16,7 +16,6 @@ import com.hoheiya.appupdater.log.LogFileName;
 import com.hoheiya.appupdater.log.LogFlattener;
 import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.util.DBUtil;
-import com.tencent.mmkv.MMKV;
 import com.xuexiang.xhttp2.XHttpSDK;
 import com.xuexiang.xui.widget.toast.XToast;
 
@@ -44,7 +43,7 @@ public class BaseApplication extends LitePalApplication {
         //
         XHttpSDK.init(this);   //初始化网络请求框架，必须首先执行
 //        XHttpSDK.debug("XHttp");  //需要调试的时候执行
-        MMKV.initialize(this);
+//        MMKV.initialize(this);
     }
 
     public void init() {

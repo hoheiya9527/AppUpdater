@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <ProgressBar
             android:id="@+id/pb_loading"
@@ -29,10 +30,74 @@
             android:visibility="gone" />
     </LinearLayout>
 
-    <com.xuexiang.xui.widget.flowlayout.FlowTagLayout
-        android:id="@+id/ftl"
+    <Button
+        android:id="@+id/bt_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/layout_bg_select_border"
+        android:text="设置" />
+
+    <RadioGroup
+        android:id="@+id/rg"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:descendantFocusability="afterDescendants"
+        android:focusable="true"
+        android:orientation="horizontal">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/rb_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_rect_round_tag_btn"
+            android:button="@null"
+            android:checked="true"
+            android:nextFocusUp="@id/bt_setting"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:text="全部"
+            android:textColor="@drawable/selector_tag_color"
+            android:textSize="@dimen/text_size_middle1" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/rb_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/bg_rect_round_tag_btn"
+            android:button="@null"
+            android:nextFocusUp="@id/bt_setting"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:text="电视TV"
+            android:textColor="@drawable/selector_tag_color"
+            android:textSize="@dimen/text_size_middle1" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/rb_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_rect_round_tag_btn"
+            android:button="@null"
+            android:nextFocusUp="@id/bt_setting"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:text="手机"
+            android:textColor="@drawable/selector_tag_color"
+            android:textSize="@dimen/text_size_middle1" />
+    </RadioGroup>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_apps"

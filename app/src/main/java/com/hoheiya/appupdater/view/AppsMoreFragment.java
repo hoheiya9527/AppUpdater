@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,15 +21,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hoheiya.appupdater.R;
 import com.hoheiya.appupdater.adapter.AppsMoreAdapter;
-import com.hoheiya.appupdater.adapter.FlowTagAdapter;
 import com.hoheiya.appupdater.callback.OverCallback;
 import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.model.AppInfo;
 import com.hoheiya.appupdater.util.HttpUtil;
 import com.xuexiang.xui.utils.DensityUtils;
-import com.xuexiang.xui.utils.ResUtils;
 import com.xuexiang.xui.utils.WidgetUtils;
-import com.xuexiang.xui.widget.flowlayout.FlowTagLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +49,6 @@ public class AppsMoreFragment extends BaseFragment {
     private AppsMoreAdapter adapter;
     private Disposable disposable;
     private ArrayList<AppInfo> appInfos;
-    private FlowTagAdapter tagAdapter;
     private int tagPosition = 0;
 
     /**
@@ -84,25 +81,41 @@ public class AppsMoreFragment extends BaseFragment {
         adapter = new AppsMoreAdapter(appInfos, (MainActivity) getActivity());
         recyclerView.setAdapter(adapter);
 
-        //分类tab
-        FlowTagLayout flowTagLayout = view.findViewById(R.id.ftl);
-        tagAdapter = new FlowTagAdapter(getContext());
-        flowTagLayout.setAdapter(tagAdapter);
-        flowTagLayout.setTagCheckedMode(FlowTagLayout.FLOW_TAG_CHECKED_SINGLE);
-        flowTagLayout.setOnTagSelectListener((parent, position, selectedList) -> {
+        RadioGroup radioGroup = view.findViewById(R.id.rg);
+        radioGroup.setOnCheckedChangeListener((radioGroup1, position) -> {
             if (tagPosition == position) {
                 return;
             }
             tagPosition = position;
             String addition = "ALL";
-            if (position == 1) {
+            if (position == R.id.rb_tv) {
                 addition = "TV";
-            } else if (position == 2) {
+            } else if (position == R.id.rb_phone) {
                 addition = "PHONE";
             }
             additionShow(addition);
         });
-        tagAdapter.addTags(new String[]{"全部", "电视TV", "手机"});
+        //分类tab
+//        FlowTagLayout flowTagLayout = view.findViewById(R.id.ftl);
+//        tagAdapter = new FlowTagAdapter(getContext());
+//        flowTagLayout.setAdapter(tagAdapter);
+//        flowTagLayout.setTagCheckedMode(FlowTagLayout.FLOW_TAG_CHECKED_SINGLE);
+//        flowTagLayout.setOnTagSelectListener((parent, position, selectedList) -> {
+//            if (tagPosition == position) {
+//                return;
+//            }
+//            tagPosition = position;
+//            String addition = "ALL";
+//            if (position == 1) {
+//                addition = "TV";
+//            } else if (position == 2) {
+//                addition = "PHONE";
+//            }
+//            additionShow(addition);
+//        });
+//        tagAdapter.addTags(new String[]{"全部", "电视TV", "手机"});
+
+
         loadMoreApps();
         return view;
     }
@@ -178,7 +191,6 @@ public class AppsMoreFragment extends BaseFragment {
                         appInfos.addAll(list);
                     }
                     adapter.refresh(appInfos);
-                    tagAdapter.setSelectedPositions(tagPosition);
                 });
     }
 

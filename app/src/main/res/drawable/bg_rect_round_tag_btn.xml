@@ -6,7 +6,7 @@
         <corners android:radius="?attr/xui_btn_view_radius" />
     </shape>
 </item>
-<item android:state_selected="true">
+<item android:state_checked="true">
     <shape android:shape="rectangle">
         <solid android:color="?attr/colorAccent" />
         <corners android:radius="?attr/xui_btn_view_radius" />
@@ -15,7 +15,7 @@
     <item android:state_focused="true">
         <shape android:shape="rectangle">
             <solid android:color="@color/xui_config_color_white" />
-            <stroke android:width="2dp" android:color="@color/focused" />
+            <stroke android:width="3dp" android:color="@color/focused" />
             <corners android:radius="?attr/xui_btn_view_radius" />
         </shape>
     </item>

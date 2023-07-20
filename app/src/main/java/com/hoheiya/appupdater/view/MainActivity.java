@@ -47,9 +47,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void initData() {
         requiresPermission();
-
         installReceiver = new InstallReceiver();
-
 //        viewPager.setOffscreenPageLimit(0);
         easyIndicator.setTabTitles(new String[]{getString(R.string.app_update), getString(R.string.app_more)});
         //左右按键直接切换
