@@ -1,15 +1,11 @@
 package com.hoheiya.appupdater;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.*;
-
-import android.graphics.Bitmap;
-
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hoheiya.appupdater.model.AppInfo;
-import com.hoheiya.appupdater.util.IconUtil;
+
+import org.junit.Test;
 
 import java.util.ArrayList;
 

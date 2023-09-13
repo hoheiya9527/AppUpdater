@@ -78,7 +78,7 @@
         style="@style/RoundButton.Auto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="下载"
+        android:text="@string/download"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@id/tv_item_desc"
         app:layout_constraintEnd_toEndOf="parent"
@@ -105,6 +105,7 @@
         app:cpv_start_progress="0"
         app:cpv_track_color="#22FFF5"
         app:cpv_track_width="4dp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_item_desc"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

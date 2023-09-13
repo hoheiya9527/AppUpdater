@@ -1,5 +1,9 @@
 package com.hoheiya.appupdater.view;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -15,6 +19,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
@@ -25,6 +30,7 @@ import com.hoheiya.appupdater.callback.OverCallback;
 import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.model.AppInfo;
 import com.hoheiya.appupdater.util.HttpUtil;
+import com.xuexiang.xui.adapter.recyclerview.RecyclerViewHolder;
 import com.xuexiang.xui.utils.DensityUtils;
 import com.xuexiang.xui.utils.WidgetUtils;
 
@@ -79,6 +85,18 @@ public class AppsMoreFragment extends BaseFragment {
         //
         appInfos = new ArrayList<>();
         adapter = new AppsMoreAdapter(appInfos, (MainActivity) getActivity());
+        adapter.setOnItemLongClickListener((itemView, item, position) -> {
+            BaseActivity activity = (BaseActivity) getActivity();
+            String clipboard = item.getClipboard();
+            if (TextUtils.isEmpty(clipboard)) {
+                activity.showShort("该项没有内容可复制");
+                return;
+            }
+            ClipboardManager clipboardManager = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clipData = ClipData.newPlainText("simple text", clipboard);
+            clipboardManager.setPrimaryClip(clipData);
+            activity.showShortSuc(item.getName() + "\n附加内容已复制");
+        });
         recyclerView.setAdapter(adapter);
 
         RadioGroup radioGroup = view.findViewById(R.id.rg);
@@ -115,7 +133,16 @@ public class AppsMoreFragment extends BaseFragment {
 //        });
 //        tagAdapter.addTags(new String[]{"全部", "电视TV", "手机"});
 
-
+        //
+        view.findViewById(R.id.bt_setting).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentActivity activity = getActivity();
+                assert activity != null;
+                activity.startActivity(new Intent(activity, SettingActivity.class));
+            }
+        });
+        //
         loadMoreApps();
         return view;
     }

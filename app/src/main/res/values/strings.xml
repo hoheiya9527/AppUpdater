@@ -9,4 +9,7 @@
     <string name="app_download">应用下载</string>
     <string name="app_more">更多应用</string>
     <string name="update">更新</string>
+    <string name="boot">随开机启动更新检查</string>
+    <string name="download">下载</string>
+    <string name="open">打开</string>
 </resources>

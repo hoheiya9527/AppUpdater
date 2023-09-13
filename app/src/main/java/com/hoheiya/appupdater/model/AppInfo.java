@@ -1,6 +1,8 @@
 package com.hoheiya.appupdater.model;
 
-public class AppInfo {
+import java.io.Serializable;
+
+public class AppInfo implements Serializable {
     private boolean isInstalled;
     private int versionCode;
     private String versionName;
@@ -12,6 +14,8 @@ public class AppInfo {
     private String desc;
 
     private String downloadUrl;
+
+    private String clipboard;
 
     public boolean isInstalled() {
         return isInstalled;
@@ -94,6 +98,14 @@ public class AppInfo {
         this.downloadUrl = downloadUrl;
     }
 
+    public String getClipboard() {
+        return clipboard;
+    }
+
+    public void setClipboard(String clipboard) {
+        this.clipboard = clipboard;
+    }
+
     @Override
     public String toString() {
         return "AppInfo{" +
@@ -103,9 +115,11 @@ public class AppInfo {
                 ", packageName='" + packageName + '\'' +
                 ", icon='" + icon + '\'' +
                 ", name='" + name + '\'' +
+                ", unitType='" + unitType + '\'' +
                 ", apkSize='" + apkSize + '\'' +
                 ", desc='" + desc + '\'' +
                 ", downloadUrl='" + downloadUrl + '\'' +
+                ", clipboard='" + clipboard + '\'' +
                 '}';
     }
 }

@@ -1,8 +1,11 @@
 package com.hoheiya.appupdater.adapter;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -62,9 +65,11 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
             }
         }
 
-        View button = holder.getView(R.id.bt_item_download);
+        Button button = (Button) holder.getView(R.id.bt_item_download);
         //
-        button.setVisibility(item.isInstalled() ? View.INVISIBLE : View.VISIBLE);
+//        button.setVisibility(item.isInstalled() ? View.INVISIBLE : View.VISIBLE);
+        button.setText(item.isInstalled() ? activity.getString(R.string.open) : activity.getString(R.string.download));
+        button.setVisibility(item.getPackageName().equals(activity.getPackageName()) ? View.GONE : View.VISIBLE);
         CircleProgressView progressView = (CircleProgressView) holder.getView(R.id.pb_item);
         //
         holder.itemView.setOnClickListener(view -> {
@@ -74,6 +79,17 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
         });
         //
         holder.click(R.id.bt_item_download, view -> {
+            //Open Application
+            if (item.isInstalled()) {
+                Intent intent = activity.getPackageManager().getLaunchIntentForPackage(item.getPackageName());
+                if (intent == null) {
+                    activity.showShort(item.getName() + " 打开失败");
+                    return;
+                }
+                activity.startActivity(intent);
+                return;
+            }
+            //Download And Install Application
             String downloadUrl = item.getDownloadUrl();
             MLog.d("item.downloadUrl():" + downloadUrl);
             if (TextUtils.isEmpty(downloadUrl)) {

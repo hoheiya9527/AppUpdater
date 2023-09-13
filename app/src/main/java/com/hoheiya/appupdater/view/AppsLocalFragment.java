@@ -36,8 +36,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class AppsLocalFragment extends BaseFragment {
-    private static final String KEY_IS_IN = "KEY_IS_IN";//出入库标识
-
     private LinearLayout infoLL;
     private ProgressBar loadingPb;
     private TextView textView;
