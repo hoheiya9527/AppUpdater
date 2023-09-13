@@ -84,7 +84,7 @@ public class AppsLocalFragment extends BaseFragment {
         disposable = Observable.create(new ObservableOnSubscribe<List<AppInfo>>() {
                     @Override
                     public void subscribe(ObservableEmitter<List<AppInfo>> emitter) {
-                        HttpUtil.getRemoteAppInfos(false, new OverCallback() {
+                        HttpUtil.getRemoteAppInfos(true, new OverCallback() {
                             @Override
                             public void suc(String result) {
                                 ArrayList<AppInfo> remoteApps = new Gson().fromJson(result, new TypeToken<List<AppInfo>>() {
