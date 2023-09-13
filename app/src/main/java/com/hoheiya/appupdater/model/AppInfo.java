@@ -17,6 +17,8 @@ public class AppInfo implements Serializable {
 
     private String clipboard;
 
+    private boolean isNewVersion;
+
     public boolean isInstalled() {
         return isInstalled;
     }
@@ -106,6 +108,14 @@ public class AppInfo implements Serializable {
         this.clipboard = clipboard;
     }
 
+    public boolean isNewVersion() {
+        return isNewVersion;
+    }
+
+    public void setNewVersion(boolean newVersion) {
+        isNewVersion = newVersion;
+    }
+
     @Override
     public String toString() {
         return "AppInfo{" +
@@ -120,6 +130,7 @@ public class AppInfo implements Serializable {
                 ", desc='" + desc + '\'' +
                 ", downloadUrl='" + downloadUrl + '\'' +
                 ", clipboard='" + clipboard + '\'' +
+                ", isNewVersion=" + isNewVersion +
                 '}';
     }
 }

@@ -68,8 +68,14 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
         Button button = (Button) holder.getView(R.id.bt_item_download);
         //
 //        button.setVisibility(item.isInstalled() ? View.INVISIBLE : View.VISIBLE);
-        button.setText(item.isInstalled() ? activity.getString(R.string.open) : activity.getString(R.string.download));
-        button.setVisibility(item.getPackageName().equals(activity.getPackageName()) ? View.GONE : View.VISIBLE);
+        if (item.isNewVersion() && item.isInstalled()) {
+            button.setText(activity.getString(R.string.update));
+            button.setVisibility(View.VISIBLE);
+        } else {
+            button.setText(item.isInstalled() ? activity.getString(R.string.open) : activity.getString(R.string.download));
+            button.setVisibility(item.getPackageName().equals(activity.getPackageName()) ? View.GONE : View.VISIBLE);
+        }
+        //
         CircleProgressView progressView = (CircleProgressView) holder.getView(R.id.pb_item);
         //
         holder.itemView.setOnClickListener(view -> {
@@ -80,7 +86,7 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
         //
         holder.click(R.id.bt_item_download, view -> {
             //Open Application
-            if (item.isInstalled()) {
+            if (!item.isNewVersion() && item.isInstalled()) {
                 Intent intent = activity.getPackageManager().getLaunchIntentForPackage(item.getPackageName());
                 if (intent == null) {
                     activity.showShort(item.getName() + " 打开失败");

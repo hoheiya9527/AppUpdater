@@ -230,6 +230,14 @@ public class AppsMoreFragment extends BaseFragment {
                 PackageInfo packageInfo = packageManager.getPackageInfo(app.getPackageName(), 0);
                 if (packageInfo != null) {
                     app.setInstalled(true);
+                    int versionCode = packageInfo.versionCode;
+                    String versionName = packageInfo.versionName;
+                    if (versionCode < app.getVersionCode()
+                            ||
+                            (versionCode == app.getVersionCode()
+                                    && !versionName.equalsIgnoreCase(app.getVersionName()))) {
+                        app.setNewVersion(true);
+                    }
                 }
             } catch (PackageManager.NameNotFoundException e) {
 //                e.printStackTrace();
