@@ -25,6 +25,7 @@ import com.xuexiang.xui.adapter.recyclerview.RecyclerViewHolder;
 import com.xuexiang.xui.widget.progress.CircleProgressView;
 
 import java.util.Collection;
+import java.util.Collections;
 
 public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
     private MainActivity activity;
@@ -33,6 +34,7 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
         super(list);
         this.activity = activity;
     }
+
 
     @Override
     protected int getItemLayoutId(int viewType) {
@@ -82,6 +84,16 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
             if (button.getVisibility() == View.VISIBLE) {
                 button.performClick();
             }
+
+            //点击滑动测试--------START
+//            int index = getData().indexOf(item);
+//            if (index == 0) {
+////                onItemMove(index, getData().size() - 1);
+//                return;
+//            }
+//            int toPosition = index - 1;
+//            onItemMove(index, toPosition);
+            //点击滑动测试--------END
         });
         //
         holder.click(R.id.bt_item_download, view -> {
@@ -143,4 +155,19 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
         }
         return name;
     }
+
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(getData(), i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(getData(), i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+
 }

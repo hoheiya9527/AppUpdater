@@ -20,7 +20,7 @@ import java.util.Map;
 public class HttpUtil {
     private static String result;
 
-    public static synchronized void getRemoteAppInfos(boolean isRefresh, OverCallback overCallback) {
+    public static void getRemoteAppInfos(boolean isRefresh, OverCallback overCallback) {
         String url = "https://ghproxy.com/https://raw.githubusercontent.com/hoheiya9527/ApkPackage/main/app.json";
         if (!isRefresh && !TextUtils.isEmpty(result)) {
             overCallback.suc(result);
@@ -217,7 +217,7 @@ public class HttpUtil {
         return "?" + requestURL;
     }
 
-    public static void doDownload(String downloadUrl,String name,DownloadProgressCallBack<String> callBack) {
+    public static void doDownload(String downloadUrl, String name, DownloadProgressCallBack<String> callBack) {
         String baseUrl = downloadUrl.substring(0, downloadUrl.lastIndexOf("/") + 1);
         XHttp.downLoad(downloadUrl).saveName(name).baseUrl(baseUrl).execute(callBack);
     }

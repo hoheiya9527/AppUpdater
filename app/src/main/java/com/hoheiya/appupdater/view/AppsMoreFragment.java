@@ -8,6 +8,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +32,6 @@ import com.hoheiya.appupdater.callback.OverCallback;
 import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.model.AppInfo;
 import com.hoheiya.appupdater.util.HttpUtil;
-import com.xuexiang.xui.adapter.recyclerview.RecyclerViewHolder;
 import com.xuexiang.xui.utils.DensityUtils;
 import com.xuexiang.xui.utils.WidgetUtils;
 
@@ -99,6 +100,31 @@ public class AppsMoreFragment extends BaseFragment {
         });
         recyclerView.setAdapter(adapter);
 
+        //
+//        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RvTouchCallback());
+//        itemTouchHelper.attachToRecyclerView(recyclerView);
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+                MLog.d("------onItemRangeMoved------" + fromPosition + "," + toPosition);
+                if (toPosition == 0) {
+                    RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                    if (layoutManager != null) {
+                        View fview = layoutManager.findViewByPosition(fromPosition);
+                        View tview = layoutManager.findViewByPosition(toPosition);
+                        if (fview != null) {
+                            fview.findViewById(R.id.tv_item_name).setVisibility(View.GONE);
+                        }
+                        if (tview != null) {
+                            tview.findViewById(R.id.tv_item_name).setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
+                //
+                new Handler().post(() -> recyclerView.scrollToPosition(toPosition));
+            }
+        });
+        //
         RadioGroup radioGroup = view.findViewById(R.id.rg);
         radioGroup.setOnCheckedChangeListener((radioGroup1, position) -> {
             if (tagPosition == position) {
@@ -139,7 +165,7 @@ public class AppsMoreFragment extends BaseFragment {
             public void onClick(View view) {
                 FragmentActivity activity = getActivity();
                 assert activity != null;
-                activity.startActivity(new Intent(activity, SettingActivity.class));
+                activity.startActivity(new Intent(Settings.ACTION_SETTINGS));
             }
         });
         //
