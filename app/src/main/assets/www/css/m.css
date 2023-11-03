@@ -1,0 +1,31 @@
+.weui-textarea {
+	display: block;
+	border: 0;
+	resize: none;
+	background: transparent;
+	width: 100%;
+	color: inherit;
+	font-size: 1em;
+	font-family: inherit;
+	line-height: inherit;
+	height: 80px;
+	outline: 0;
+}
+.div_blank{
+    height:300px;
+}
+.div_padding {
+	margin-top: 10px;
+}
+
+.input_padding {
+	margin: 20px;
+}
+
+.weui-div{
+	margin: 20px;
+	border-bottom: 1px solid #AAAAAA;
+	border-top: 0px;
+	border-left: 0px;
+	border-right: 0px;
+}

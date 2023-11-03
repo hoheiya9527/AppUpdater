@@ -21,12 +21,12 @@ public class HttpUtil {
     private static String result;
 
     public static void getRemoteAppInfos(boolean isRefresh, OverCallback overCallback) {
-        String url = "https://ghproxy.com/https://raw.githubusercontent.com/hoheiya9527/ApkPackage/main/app.json";
+        String updateUrl = DBUtil.getUpdateUrl();
         if (!isRefresh && !TextUtils.isEmpty(result)) {
             overCallback.suc(result);
             return;
         }
-        HttpUtil.doGet(url, "", new HttpCallBack<String>() {
+        HttpUtil.doGet(updateUrl, "", new HttpCallBack<String>() {
             @Override
             public void onSuccess(String result) {
                 super.onSuccess(result);

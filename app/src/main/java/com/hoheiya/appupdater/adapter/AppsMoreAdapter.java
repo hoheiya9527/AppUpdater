@@ -24,11 +24,13 @@ import com.xuexiang.xui.adapter.recyclerview.BaseRecyclerAdapter;
 import com.xuexiang.xui.adapter.recyclerview.RecyclerViewHolder;
 import com.xuexiang.xui.widget.progress.CircleProgressView;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 
 public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
     private MainActivity activity;
+    private String pathStr;
 
     public AppsMoreAdapter(Collection<AppInfo> list, MainActivity activity) {
         super(list);
@@ -78,7 +80,8 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
             button.setVisibility(item.getPackageName().equals(activity.getPackageName()) ? View.GONE : View.VISIBLE);
         }
         //
-        CircleProgressView progressView = (CircleProgressView) holder.getView(R.id.pb_item);
+        final CircleProgressView progressView = (CircleProgressView) holder.getView(R.id.pb_item);
+        progressView.setVisibility(View.GONE);
         //
         holder.itemView.setOnClickListener(view -> {
             if (button.getVisibility() == View.VISIBLE) {
@@ -114,36 +117,59 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
                 activity.showShort("[" + item.getName() + "]下载失败，无有效下载地址");
                 return;
             }
-            HttpUtil.doDownload(downloadUrl, item.getPackageName() + ".apk", new DownloadProgressCallBack<String>() {
-                @Override
-                public void update(long downLoadSize, long totalSize, boolean done) {
-                    MLog.d("==update-- " + downLoadSize + "/" + totalSize + " ,isDone:" + done);
-                    progressView.setProgress(downLoadSize * 100f / totalSize);
+            final String packageName = item.getPackageName();
+            //检查安装包是否已存在，存在则调用安装
+            if (!TextUtils.isEmpty(pathStr)) {
+                String apkPath = pathStr + File.separator + packageName + ".apk";
+                File file = new File(apkPath);
+                boolean exists = file.exists();
+                MLog.d("==check apk isExist:" + exists);
+                if (exists) {
+                    activity.installAPK(packageName, apkPath);
+                    return;
                 }
+            }
+            //
+            HttpUtil.doDownload(downloadUrl, packageName + ".apk",
+                    new DownloadProgressCallBack<String>() {
+                        @Override
+                        public void update(long downLoadSize, long totalSize, boolean done) {
+                            MLog.d("==update-- " + downLoadSize + "/" + totalSize + " ,isDone:" + done);
+                            progressView.setVisibility(View.VISIBLE);
+                            button.setVisibility(View.GONE);
+                            progressView.setProgress(downLoadSize * 100f / totalSize);
+                        }
 
-                @Override
-                public void onComplete(String path) {
-                    MLog.d("==onComplete==" + path);
-                    progressView.setVisibility(View.GONE);
-                    button.setVisibility(View.VISIBLE);
-                    //
-                    activity.installAPK(path);
-                }
+                        @Override
+                        public void onComplete(String path) {
+                            MLog.d("==onComplete==" + path);
+                            //
+                            try {
+                                pathStr = new File(path).getParentFile().getAbsolutePath();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            //
+                            progressView.setVisibility(View.GONE);
+                            button.setVisibility(View.VISIBLE);
+                            //
+                            activity.installAPK(packageName, path);
+                        }
 
-                @Override
-                public void onStart() {
-                    MLog.d("==onStart");
-                    button.setVisibility(View.INVISIBLE);
-                    progressView.setVisibility(View.VISIBLE);
-                }
+                        @Override
+                        public void onStart() {
+                            MLog.d("==onStart");
+                            button.setVisibility(View.INVISIBLE);
+                            progressView.setVisibility(View.VISIBLE);
+                        }
 
-                @Override
-                public void onError(ApiException e) {
-                    MLog.d("==onError:" + e);
-                    progressView.setVisibility(View.GONE);
-                    button.setVisibility(View.VISIBLE);
-                }
-            });
+                        @Override
+                        public void onError(ApiException e) {
+                            MLog.d("==onError:" + e);
+                            progressView.setVisibility(View.GONE);
+                            button.setVisibility(View.VISIBLE);
+                        }
+                    });
         });
 
     }

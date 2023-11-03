@@ -4,13 +4,10 @@ import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.target.Target;
 import com.hoheiya.appupdater.R;
 import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.model.AppInfo;
@@ -23,11 +20,13 @@ import com.xuexiang.xui.adapter.recyclerview.BaseRecyclerAdapter;
 import com.xuexiang.xui.adapter.recyclerview.RecyclerViewHolder;
 import com.xuexiang.xui.widget.progress.CircleProgressView;
 
+import java.io.File;
 import java.util.Collection;
 
 public class AppsLocalAdapter extends BaseRecyclerAdapter<AppInfo> {
 
     private MainActivity activity;
+    private String pathStr;
 
     public AppsLocalAdapter(Collection<AppInfo> list, MainActivity activity) {
         super(list);
@@ -81,6 +80,19 @@ public class AppsLocalAdapter extends BaseRecyclerAdapter<AppInfo> {
                 activity.showShort("[" + item.getName() + "]下载失败，无有效下载地址");
                 return;
             }
+            final String packageName = item.getPackageName();
+            //检查安装包是否已存在，存在则调用安装
+            if (!TextUtils.isEmpty(pathStr)) {
+                String apkPath = pathStr + File.separator + packageName + ".apk";
+                File file = new File(apkPath);
+                boolean exists = file.exists();
+                MLog.d("==check apk isExist:" + exists);
+                if (exists) {
+                    activity.installAPK(packageName, apkPath);
+                    return;
+                }
+            }
+            //
             HttpUtil.doDownload(downloadUrl, item.getPackageName() + ".apk", new DownloadProgressCallBack<String>() {
                 @Override
                 public void update(long downLoadSize, long totalSize, boolean done) {
@@ -91,10 +103,17 @@ public class AppsLocalAdapter extends BaseRecyclerAdapter<AppInfo> {
                 @Override
                 public void onComplete(String path) {
                     MLog.d("==onComplete==" + path);
+                    //
+                    try {
+                        pathStr = new File(path).getParentFile().getAbsolutePath();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    //
                     progressView.setVisibility(View.GONE);
                     button.setVisibility(View.VISIBLE);
                     //
-                    activity.installAPK(path);
+                    activity.installAPK(packageName, path);
                 }
 
                 @Override

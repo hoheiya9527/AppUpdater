@@ -3,13 +3,11 @@ package com.hoheiya.appupdater.view;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +19,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
@@ -31,14 +28,22 @@ import com.hoheiya.appupdater.adapter.AppsMoreAdapter;
 import com.hoheiya.appupdater.callback.OverCallback;
 import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.model.AppInfo;
+import com.hoheiya.appupdater.model.MessageEvent;
+import com.hoheiya.appupdater.server.RemoteSever;
 import com.hoheiya.appupdater.util.HttpUtil;
 import com.xuexiang.xui.utils.DensityUtils;
 import com.xuexiang.xui.utils.WidgetUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import fi.iki.elonen.NanoHTTPD;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -57,6 +62,7 @@ public class AppsMoreFragment extends BaseFragment {
     private Disposable disposable;
     private ArrayList<AppInfo> appInfos;
     private int tagPosition = 0;
+    private QRcodeDialog dialog;
 
     /**
      * @return
@@ -71,6 +77,30 @@ public class AppsMoreFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        // Do something
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+        new Handler().postDelayed(() -> RemoteSever.getInstance().stop(), 1000);
+        //
+        ((BaseActivity) getActivity()).showShortSuc("地址配置成功，开始重新获取……");
+        refresh();
     }
 
     @Nullable
@@ -163,9 +193,41 @@ public class AppsMoreFragment extends BaseFragment {
         view.findViewById(R.id.bt_setting).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FragmentActivity activity = getActivity();
-                assert activity != null;
-                activity.startActivity(new Intent(Settings.ACTION_SETTINGS));
+//                FragmentActivity activity = getActivity();
+//                assert activity != null;
+//                activity.startActivity(new Intent(Settings.ACTION_SETTINGS));
+
+                ((BaseActivity) getActivity()).disMissDialog();
+                //
+                String serverAddress = RemoteSever.getServerAddress();
+                RemoteSever.getInstance().setContext(getActivity());
+                if (!RemoteSever.getInstance().isStarted()) {
+                    try {
+                        RemoteSever.getInstance().start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        MLog.printLog(e);
+                    }
+                }
+                dialog = QRcodeDialog.newInstance();
+                dialog.show((BaseActivity) getActivity(),
+                        serverAddress,
+                        serverAddress +
+                                "\n手机连接同一网络后扫码访问进行输入" +
+                                "\n或\n" +
+                                "在下方输入框完成输入",
+                        new OverCallback() {
+                            @Override
+                            public void suc(String result) {
+                                //更新地址更改后进行刷新
+                                refresh();
+                            }
+
+                            @Override
+                            public void fail(String error) {
+
+                            }
+                        });
             }
         });
         //

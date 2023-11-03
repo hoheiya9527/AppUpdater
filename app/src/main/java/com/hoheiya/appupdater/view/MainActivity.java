@@ -2,16 +2,19 @@ package com.hoheiya.appupdater.view;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 
@@ -23,7 +26,12 @@ import com.xuexiang.xui.widget.tabbar.EasyIndicator;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MainActivity extends BaseActivity {
     private EasyIndicator easyIndicator;
@@ -32,6 +40,9 @@ public class MainActivity extends BaseActivity {
     private InstallReceiver installReceiver;
     private File installApkFile;
     private FragmentAdapter<BaseFragment> fragmentAdapter;
+
+    private LinkedHashMap<String, String> apkToInstallMaps = new LinkedHashMap<>();
+    private boolean isInstalling;
 
     @Override
     protected void initView() {
@@ -119,9 +130,23 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    public void installAPK(String filePath) {
-        MLog.d("==installAPK:" + filePath);
+    public void installAPK(String packageName, String filePath) {
+        apkToInstallMaps.put(packageName, filePath);
+        startInstall();
+    }
 
+    private void startInstall() {
+//        if (isInstalling) {
+//            MLog.d("===========isInstalling===========");
+//            return;
+//        }
+        Iterator<Map.Entry<String, String>> iterator = apkToInstallMaps.entrySet().iterator();
+        if (!iterator.hasNext()) {
+            return;
+        }
+        Map.Entry<String, String> next = iterator.next();
+        String filePath = next.getValue();
+        MLog.d("==installAPK:" + filePath);
         Intent installIntent = new Intent();
         installIntent.setAction(Intent.ACTION_VIEW);
         installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -142,18 +167,50 @@ public class MainActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        //
+        isInstalling = true;
         //
         String type = "application/vnd.android.package-archive";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Uri uri = FileProvider.getUriForFile(this,
                     "com.hoheiya.appupdater.fileprovider", installApkFile);//这一部分要与前面对应
             installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            installIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             installIntent.setDataAndType(uri, type);
+
+            //方式一
+            if (installIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(installIntent);
+                return;
+            }
+            showShort("方式一失败，正尝试使用方式二进行安装");
+            //方式二
+            Intent newIntent = new Intent("android.intent.action.INSTALL_PACKAGE");
+            newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            newIntent.setDataAndType(uri, type);
+            if (installIntent.resolveActivity(getPackageManager()) == null) {
+                showShortErr("调用方式二安装失败");
+                isInstalling = false;
+                return;
+            }
+            startActivity(newIntent);
         } else {
             installIntent.setDataAndType(Uri.fromFile(installApkFile), type);
+            if (installIntent.resolveActivity(getPackageManager()) == null) {
+                showShortErr("调用安装失败");
+                isInstalling = false;
+                return;
+            }
+            startActivity(installIntent);
         }
-        startActivity(installIntent);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void startInstallPermissionSettingActivity() {
+        //注意这个是8.0新API
+        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     class InstallReceiver extends BroadcastReceiver {
@@ -167,6 +224,12 @@ public class MainActivity extends BaseActivity {
                 for (BaseFragment f : fragmentList) {
                     f.refresh();
                 }
+                //
+                isInstalling = false;
+                //队列安装触发
+                apkToInstallMaps.remove(packageName);
+                startInstall();
+                //
             }
 //            if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
 //                String packageName = intent.getData().getSchemeSpecificPart();
