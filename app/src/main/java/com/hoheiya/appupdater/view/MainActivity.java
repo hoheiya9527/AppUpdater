@@ -228,7 +228,8 @@ public class MainActivity extends BaseActivity {
                 isInstalling = false;
                 //队列安装触发
                 apkToInstallMaps.remove(packageName);
-                startInstall();
+                //由于无法完善监听是否安装，取消自调用处理，避免反复唤起安装
+//                startInstall();
                 //
             }
 //            if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {

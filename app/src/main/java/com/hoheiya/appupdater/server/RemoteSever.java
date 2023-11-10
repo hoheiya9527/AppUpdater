@@ -155,6 +155,10 @@ public class RemoteSever extends NanoHTTPD {
                     return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK,
                             NanoHTTPD.MIME_PLAINTEXT, new Gson().toJson(Res.OK("地址配置成功")));
                 }
+                return newFixedLengthResponse(
+                        Response.Status.BAD_REQUEST,
+                        NanoHTTPD.MIME_PLAINTEXT,
+                        "SERVER INTERNAL ERROR--UNSUPPORT REQUEST");
             }
             //
         }
