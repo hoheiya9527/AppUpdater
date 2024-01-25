@@ -2,7 +2,6 @@ package com.hoheiya.appupdater.view;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -26,12 +25,7 @@ import com.xuexiang.xui.widget.tabbar.EasyIndicator;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class MainActivity extends BaseActivity {
     private EasyIndicator easyIndicator;
@@ -41,7 +35,7 @@ public class MainActivity extends BaseActivity {
     private File installApkFile;
     private FragmentAdapter<BaseFragment> fragmentAdapter;
 
-    private LinkedHashMap<String, String> apkToInstallMaps = new LinkedHashMap<>();
+    //    private LinkedHashMap<String, String> apkToInstallMaps = new LinkedHashMap<>();
     private boolean isInstalling;
 
     @Override
@@ -131,21 +125,21 @@ public class MainActivity extends BaseActivity {
     }
 
     public void installAPK(String packageName, String filePath) {
-        apkToInstallMaps.put(packageName, filePath);
-        startInstall();
+//        apkToInstallMaps.put(packageName, filePath);
+        startInstall(filePath);
     }
 
-    private void startInstall() {
+    private void startInstall(String filePath) {
 //        if (isInstalling) {
 //            MLog.d("===========isInstalling===========");
 //            return;
 //        }
-        Iterator<Map.Entry<String, String>> iterator = apkToInstallMaps.entrySet().iterator();
-        if (!iterator.hasNext()) {
-            return;
-        }
-        Map.Entry<String, String> next = iterator.next();
-        String filePath = next.getValue();
+//        Iterator<Map.Entry<String, String>> iterator = apkToInstallMaps.entrySet().iterator();
+//        if (!iterator.hasNext()) {
+//            return;
+//        }
+//        Map.Entry<String, String> next = iterator.next();
+//        String filePath = next.getValue();
         MLog.d("==installAPK:" + filePath);
         Intent installIntent = new Intent();
         installIntent.setAction(Intent.ACTION_VIEW);
@@ -227,7 +221,7 @@ public class MainActivity extends BaseActivity {
                 //
                 isInstalling = false;
                 //队列安装触发
-                apkToInstallMaps.remove(packageName);
+//                apkToInstallMaps.remove(packageName);
                 //由于无法完善监听是否安装，取消自调用处理，避免反复唤起安装
 //                startInstall();
                 //
