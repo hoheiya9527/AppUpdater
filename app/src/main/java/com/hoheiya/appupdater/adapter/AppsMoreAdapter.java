@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.hoheiya.appupdater.R;
 import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.model.AppInfo;
@@ -56,8 +58,9 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
         imageView.setImageResource(R.drawable.ic_android);
         if (!TextUtils.isEmpty(icon)) {
             if (icon.startsWith("http")) {
+                GlideUrl glideUrl = new GlideUrl(icon, new LazyHeaders.Builder().addHeader("User-Agent", "PostmanRuntime/7.29.2").build());
                 Glide.with(activity)
-                        .load(icon)
+                        .load(glideUrl)
 //                        .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
 //                        .transform(new RoundedCorners(10))
                         .into(imageView);

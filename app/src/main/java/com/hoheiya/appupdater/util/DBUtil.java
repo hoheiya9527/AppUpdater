@@ -1,5 +1,6 @@
 package com.hoheiya.appupdater.util;
 
+import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.model.DataSet;
 
 import org.litepal.LitePal;
@@ -53,6 +54,7 @@ public class DBUtil {
     }
 
     public static boolean setUpdateUrl(String url) {
+        MLog.d("==setUpdateUrl:" + url);
         List<DataSet> all = LitePal.findAll(DataSet.class);
         if (all != null && all.size() > 0) {
             DataSet dataSet = all.get(all.size() - 1);

@@ -231,7 +231,12 @@ public class AppsMoreFragment extends BaseFragment {
             }
         });
         //
-        loadMoreApps();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadMoreApps();
+            }
+        }, 1000);
         return view;
     }
 

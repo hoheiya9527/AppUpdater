@@ -80,7 +80,6 @@ public class AppsLocalFragment extends BaseFragment {
         infoLL.setVisibility(View.VISIBLE);
         loadingPb.setVisibility(View.VISIBLE);
         textView.setVisibility(View.GONE);
-
         disposable = Observable.create(new ObservableOnSubscribe<List<AppInfo>>() {
                     @Override
                     public void subscribe(ObservableEmitter<List<AppInfo>> emitter) {

@@ -19,8 +19,19 @@ import java.util.Map;
 
 public class HttpUtil {
     private static String result;
+    private static boolean isUpdated = false;
 
     public static void getRemoteAppInfos(boolean isRefresh, OverCallback overCallback) {
+        //----首次执行时进行地址获取更新----START
+        if (!isUpdated) {
+            String updateUrl = DocumentUtil.getAppUpdateUrl();
+            if (!TextUtils.isEmpty(updateUrl)) {
+                DBUtil.setUpdateUrl(updateUrl);
+            }
+            isUpdated = true;
+        }
+        //----首次执行时进行地址获取更新----END
+
         String updateUrl = DBUtil.getUpdateUrl();
         if (!isRefresh && !TextUtils.isEmpty(result)) {
             overCallback.suc(result);
@@ -60,6 +71,7 @@ public class HttpUtil {
                     .baseUrl(url.substring(0, url.lastIndexOf("/") + 1))
                     //.syncRequest(true)//同步请求
                     .headers("Accept", "*/*")
+                    .headers("User-Agent", "PostmanRuntime/7.29.2")
 //                    .headers("Content-Type", "application/x-www-form-urlencoded")//请求头
                     .keepJson(true)//不自动解析
                     .onMainThread(true)//收到响应后回到主线程
@@ -79,6 +91,7 @@ public class HttpUtil {
                     .baseUrl(url.substring(0, url.lastIndexOf("/") + 1))
 //                  .timeOut()//超时时间
 //                  .syncRequest(true)//同步请求
+                    .headers("User-Agent", "PostmanRuntime/7.29.2")
                     .params(params)
                     .uploadFile("file", fileBytes, fileName, new IProgressResponseCallBack() {
                         @Override
@@ -164,6 +177,7 @@ public class HttpUtil {
                     .upJson(str)//上传json格式数据
                     .removeHeader("Accept")
                     .headers("Accept", "*/*")
+                    .headers("User-Agent", "PostmanRuntime/7.29.2")
                     .hostnameVerifier((s, sslSession) -> true)
                     .certificates()//信任所有证书
                     .keepJson(true)//不自动解析
@@ -219,6 +233,10 @@ public class HttpUtil {
 
     public static void doDownload(String downloadUrl, String name, DownloadProgressCallBack<String> callBack) {
         String baseUrl = downloadUrl.substring(0, downloadUrl.lastIndexOf("/") + 1);
-        XHttp.downLoad(downloadUrl).saveName(name).baseUrl(baseUrl).execute(callBack);
+        XHttp.downLoad(downloadUrl)
+                .saveName(name)
+                .baseUrl(baseUrl)
+                .headers("User-Agent", "PostmanRuntime/7.29.2")
+                .execute(callBack);
     }
 }
