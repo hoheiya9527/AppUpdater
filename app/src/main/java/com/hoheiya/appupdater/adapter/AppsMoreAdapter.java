@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.hoheiya.appupdater.R;
+import com.hoheiya.appupdater.callback.ProgressCallBack;
 import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.model.AppInfo;
 import com.hoheiya.appupdater.util.HttpUtil;
@@ -39,6 +40,10 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
         this.activity = activity;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;//super.getItemViewType(position);
+    }
 
     @Override
     protected int getItemLayoutId(int viewType) {
@@ -83,8 +88,7 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
             button.setVisibility(item.getPackageName().equals(activity.getPackageName()) ? View.GONE : View.VISIBLE);
         }
         //
-        final CircleProgressView progressView = (CircleProgressView) holder.getView(R.id.pb_item);
-        progressView.setVisibility(View.GONE);
+        holder.getView(R.id.pb_item).setVisibility(View.GONE);
         //
         holder.itemView.setOnClickListener(view -> {
             if (button.getVisibility() == View.VISIBLE) {
@@ -133,46 +137,47 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
                 }
             }
             //
-            HttpUtil.doDownload(downloadUrl, packageName + ".apk",
-                    new DownloadProgressCallBack<String>() {
-                        @Override
-                        public void update(long downLoadSize, long totalSize, boolean done) {
-                            MLog.d("==update-- " + downLoadSize + "/" + totalSize + " ,isDone:" + done);
-                            progressView.setVisibility(View.VISIBLE);
-                            button.setVisibility(View.GONE);
-                            progressView.setProgress(downLoadSize * 100f / totalSize);
-                        }
+            ProgressCallBack<String> callBack = new ProgressCallBack<String>(holder) {
+                @Override
+                public void update(long downLoadSize, long totalSize, boolean done) {
+                    MLog.d("==update-- " + downLoadSize + "/" + totalSize + " ,isDone:" + done);
+                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.VISIBLE);
+                    getHolder().getView(R.id.bt_item_download).setVisibility(View.GONE);
+                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setProgress(downLoadSize * 100f / totalSize);
+                }
 
-                        @Override
-                        public void onComplete(String path) {
-                            MLog.d("==onComplete==" + path);
-                            //
-                            try {
-                                pathStr = new File(path).getParentFile().getAbsolutePath();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            //
-                            progressView.setVisibility(View.GONE);
-                            button.setVisibility(View.VISIBLE);
-                            //
-                            activity.installAPK(packageName, path);
-                        }
+                @Override
+                public void onComplete(String path) {
+                    MLog.d("==onComplete==" + path);
+                    //
+                    try {
+                        pathStr = new File(path).getParentFile().getAbsolutePath();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    //
+                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.GONE);
+                    getHolder().getView(R.id.bt_item_download).setVisibility(View.VISIBLE);
+                    //
+                    activity.installAPK(packageName, path);
+                }
 
-                        @Override
-                        public void onStart() {
-                            MLog.d("==onStart");
-                            button.setVisibility(View.INVISIBLE);
-                            progressView.setVisibility(View.VISIBLE);
-                        }
+                @Override
+                public void onStart() {
+                    MLog.d("==onStart");
+                    getHolder().getView(R.id.bt_item_download).setVisibility(View.INVISIBLE);
+                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.VISIBLE);
+                }
 
-                        @Override
-                        public void onError(ApiException e) {
-                            MLog.d("==onError:" + e);
-                            progressView.setVisibility(View.GONE);
-                            button.setVisibility(View.VISIBLE);
-                        }
-                    });
+                @Override
+                public void onError(ApiException e) {
+                    MLog.d("==onError:" + e);
+                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.GONE);
+                    getHolder().getView(R.id.bt_item_download).setVisibility(View.VISIBLE);
+                }
+            };
+            //
+            HttpUtil.doDownload(downloadUrl, packageName + ".apk", callBack);
         });
 
     }

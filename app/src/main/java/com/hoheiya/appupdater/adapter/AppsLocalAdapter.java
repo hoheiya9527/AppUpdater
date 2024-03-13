@@ -36,6 +36,12 @@ public class AppsLocalAdapter extends BaseRecyclerAdapter<AppInfo> {
     }
 
     @Override
+    public int getItemViewType(int position) {
+//        return super.getItemViewType(position);
+        return position;
+    }
+
+    @Override
     protected int getItemLayoutId(int viewType) {
         return R.layout.item_appinfo_local;
     }
