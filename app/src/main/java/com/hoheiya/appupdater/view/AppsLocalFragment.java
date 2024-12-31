@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -29,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -42,6 +42,7 @@ public class AppsLocalFragment extends BaseFragment {
     private RecyclerView recyclerView;
     private AppsLocalAdapter adapter;
     private Disposable disposable;
+    private Button retryBt;
 
     /**
      * @return
@@ -71,40 +72,44 @@ public class AppsLocalFragment extends BaseFragment {
         //
         adapter = new AppsLocalAdapter(new ArrayList<>(), (MainActivity) getActivity());
         recyclerView.setAdapter(adapter);
+        //
+        retryBt = view.findViewById(R.id.bt_retry);
+//        retryBt.setOnClickListener(view1 -> loadLocalApps());
+        retryBt.setOnClickListener(view1 -> testInstallXapk());
+        //
         loadLocalApps();
         return view;
+    }
+
+    private void testInstallXapk() {
+        
     }
 
 
     private void loadLocalApps() {
         infoLL.setVisibility(View.VISIBLE);
         loadingPb.setVisibility(View.VISIBLE);
+        retryBt.setVisibility(View.GONE);
         textView.setVisibility(View.GONE);
-        disposable = Observable.create(new ObservableOnSubscribe<List<AppInfo>>() {
+        disposable = Observable.create((ObservableOnSubscribe<List<AppInfo>>) emitter -> HttpUtil.getRemoteAppInfos(true, new OverCallback() {
                     @Override
-                    public void subscribe(ObservableEmitter<List<AppInfo>> emitter) {
-                        HttpUtil.getRemoteAppInfos(true, new OverCallback() {
-                            @Override
-                            public void suc(String result) {
-                                ArrayList<AppInfo> remoteApps = new Gson().fromJson(result, new TypeToken<List<AppInfo>>() {
-                                }.getType());
-                                if (remoteApps == null || remoteApps.size() == 0) {
-                                    ((BaseActivity) getActivity()).showShort("未发现应用新版本");
-                                    emitter.onNext(new ArrayList<>());
-                                    return;
-                                }
-                                ArrayList<AppInfo> appInfos = readApps(remoteApps);
-                                emitter.onNext(appInfos);
-                            }
-
-                            @Override
-                            public void fail(String error) {
-                                ((BaseActivity) getActivity()).showShort("查询应用新版本失败");
-                                emitter.onNext(new ArrayList<>());
-                            }
-                        });
+                    public void suc(String result) {
+                        ArrayList<AppInfo> remoteApps = new Gson().fromJson(result, new TypeToken<List<AppInfo>>() {
+                        }.getType());
+                        if (remoteApps == null || remoteApps.isEmpty()) {
+                            ((BaseActivity) getActivity()).showShort("未发现应用新版本");
+                            emitter.onNext(new ArrayList<>());
+                            return;
+                        }
+                        ArrayList<AppInfo> appInfos = readApps(remoteApps);
+                        emitter.onNext(appInfos);
                     }
-                })
+
+                    @Override
+                    public void fail(String error) {
+                        emitter.onError(new Exception(error));
+                    }
+                }))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
@@ -112,7 +117,7 @@ public class AppsLocalFragment extends BaseFragment {
                 })
                 .subscribe((list) -> {
                     MLog.d("----accept----");
-                    if (list == null || list.size() == 0) {
+                    if (list == null || list.isEmpty()) {
                         loadingPb.setVisibility(View.GONE);
                         textView.setVisibility(View.VISIBLE);
                         textView.setText("未发现可更新应用");
@@ -120,6 +125,13 @@ public class AppsLocalFragment extends BaseFragment {
                         infoLL.setVisibility(View.GONE);
                         adapter.refresh(list);
                     }
+                }, throwable -> {
+                    MLog.d("----throwable----");
+                    textView.setVisibility(View.VISIBLE);
+                    loadingPb.setVisibility(View.GONE);
+                    retryBt.setVisibility(View.VISIBLE);
+                    retryBt.requestFocus();
+                    textView.setText(String.format("查询版本失败\n%s", throwable.getMessage()));
                 });
     }
 

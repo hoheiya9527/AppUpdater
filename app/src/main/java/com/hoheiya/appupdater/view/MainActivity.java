@@ -7,13 +7,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Process;
-import android.provider.Settings;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 
@@ -94,6 +93,13 @@ public class MainActivity extends BaseActivity {
         fragments.add(AppsMoreFragment.newInstance());
         fragmentAdapter = new FragmentAdapter<>(getSupportFragmentManager(), fragments);
         easyIndicator.setViewPager(viewPager, fragmentAdapter);
+        //
+        testInstall();
+    }
+
+    private void testInstall() {
+        String path = Environment.getExternalStorageDirectory() + "/NewSystem/com.public.intelligent.xx.apk";
+        startInstall(path);
     }
 
     long lastClickTime = 0;
@@ -199,13 +205,13 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void startInstallPermissionSettingActivity() {
-        //注意这个是8.0新API
-        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.O)
+//    private void startInstallPermissionSettingActivity() {
+//        //注意这个是8.0新API
+//        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        startActivity(intent);
+//    }
 
     class InstallReceiver extends BroadcastReceiver {
         @Override

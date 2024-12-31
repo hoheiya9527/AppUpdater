@@ -37,7 +37,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
+            android:padding="15dp"
+            android:gravity="center"
             android:textSize="@dimen/text_size_middle1"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/bt_retry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:text="@string/retry"
             android:visibility="gone" />
     </LinearLayout>
 

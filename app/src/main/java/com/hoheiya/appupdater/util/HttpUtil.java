@@ -48,7 +48,12 @@ public class HttpUtil {
             @Override
             public void onError(ApiException e) {
                 super.onError(e);
-                overCallback.fail("");
+                String detailMessage = e.getMessage();
+                if (TextUtils.isEmpty(detailMessage)) {
+                    detailMessage = "网络出错";
+                }
+                detailMessage = detailMessage.replace("网络不给力", "网络出错");
+                overCallback.fail(detailMessage);
             }
         });
 

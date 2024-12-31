@@ -8,10 +8,12 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        jcenter()
+//        jcenter()
         google()
         mavenCentral()
         maven { url "https://jitpack.io" }
+        maven { setUrl("https://maven.aliyun.com/repository/public") }
+        maven { setUrl("https://maven.aliyun.com/repository/google") }
     }
 }
 rootProject.name = "AppUpdater"

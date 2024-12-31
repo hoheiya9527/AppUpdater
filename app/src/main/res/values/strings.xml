@@ -14,4 +14,5 @@
     <string name="open">打开</string>
     <string name="close">关闭</string>
     <string name="update_url">检查更新地址</string>
+    <string name="retry">重试</string>
 </resources>

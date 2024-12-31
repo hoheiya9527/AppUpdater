@@ -1,5 +1,6 @@
 package com.hoheiya.appupdater.view;
 
+import android.accounts.NetworkErrorException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
@@ -43,9 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import fi.iki.elonen.NanoHTTPD;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -63,6 +63,7 @@ public class AppsMoreFragment extends BaseFragment {
     private ArrayList<AppInfo> appInfos;
     private int tagPosition = 0;
     private QRcodeDialog dialog;
+    private Button retryBt;
 
     /**
      * @return
@@ -111,6 +112,9 @@ public class AppsMoreFragment extends BaseFragment {
         loadingPb = view.findViewById(R.id.pb_loading);
         textView = view.findViewById(R.id.tv_tip_load);
         recyclerView = view.findViewById(R.id.rv_apps);
+        //
+        retryBt = view.findViewById(R.id.bt_retry);
+        retryBt.setOnClickListener(view1 -> loadMoreApps());
         //
         WidgetUtils.initRecyclerView(recyclerView, DensityUtils.dp2px(1), Color.BLACK);
         //
@@ -269,31 +273,25 @@ public class AppsMoreFragment extends BaseFragment {
         infoLL.setVisibility(View.VISIBLE);
         loadingPb.setVisibility(View.VISIBLE);
         textView.setVisibility(View.GONE);
-
-        disposable = Observable.create(new ObservableOnSubscribe<List<AppInfo>>() {
+        retryBt.setVisibility(View.GONE);
+        disposable = Observable.create((ObservableOnSubscribe<List<AppInfo>>) emitter -> HttpUtil.getRemoteAppInfos(false, new OverCallback() {
                     @Override
-                    public void subscribe(ObservableEmitter<List<AppInfo>> emitter) {
-                        HttpUtil.getRemoteAppInfos(false, new OverCallback() {
-                            @Override
-                            public void suc(String result) {
-                                ArrayList<AppInfo> remoteApps = new Gson().fromJson(result, new TypeToken<List<AppInfo>>() {
-                                }.getType());
-                                if (remoteApps == null || remoteApps.size() == 0) {
-                                    ((BaseActivity) getActivity()).showShort("未发现应用新版本");
-                                    emitter.onNext(new ArrayList<>());
-                                    return;
-                                }
-                                emitter.onNext(readApps(remoteApps));
-                            }
-
-                            @Override
-                            public void fail(String error) {
-                                ((BaseActivity) getActivity()).showShort("查询应用新版本失败");
-                                emitter.onNext(new ArrayList<>());
-                            }
-                        });
+                    public void suc(String result) {
+                        ArrayList<AppInfo> remoteApps = new Gson().fromJson(result, new TypeToken<List<AppInfo>>() {
+                        }.getType());
+                        if (remoteApps == null || remoteApps.isEmpty()) {
+                            ((BaseActivity) getActivity()).showShort("未发现应用新版本");
+                            emitter.onNext(new ArrayList<>());
+                            return;
+                        }
+                        emitter.onNext(readApps(remoteApps));
                     }
-                })
+
+                    @Override
+                    public void fail(String error) {
+                        emitter.onError(new Exception(error));
+                    }
+                }))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
@@ -302,7 +300,7 @@ public class AppsMoreFragment extends BaseFragment {
                 .subscribe((list) -> {
                     MLog.d("----accept----");
                     appInfos.clear();
-                    if (list == null || list.size() == 0) {
+                    if (list == null || list.isEmpty()) {
                         loadingPb.setVisibility(View.GONE);
                         textView.setVisibility(View.VISIBLE);
                         textView.setText("未发现可更新应用");
@@ -311,6 +309,13 @@ public class AppsMoreFragment extends BaseFragment {
                         appInfos.addAll(list);
                     }
                     adapter.refresh(appInfos);
+                }, throwable -> {
+                    MLog.d("----throwable----");
+                    textView.setVisibility(View.VISIBLE);
+                    loadingPb.setVisibility(View.GONE);
+                    retryBt.setVisibility(View.VISIBLE);
+                    retryBt.requestFocus();
+                    textView.setText(String.format("查询版本失败\n%s", throwable.getMessage()));
                 });
     }
 
@@ -333,7 +338,7 @@ public class AppsMoreFragment extends BaseFragment {
                     }
                 }
             } catch (PackageManager.NameNotFoundException e) {
-//                e.printStackTrace();
+                e.printStackTrace();
             }
             appInfos.add(app);
         }

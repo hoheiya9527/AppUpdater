@@ -88,7 +88,7 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
             button.setVisibility(item.getPackageName().equals(activity.getPackageName()) ? View.GONE : View.VISIBLE);
         }
         //
-        holder.getView(R.id.pb_item).setVisibility(View.GONE);
+        holder.getView(R.id.pb_item).setVisibility(View.INVISIBLE);
         //
         holder.itemView.setOnClickListener(view -> {
             if (button.getVisibility() == View.VISIBLE) {
@@ -141,8 +141,8 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
                 @Override
                 public void update(long downLoadSize, long totalSize, boolean done) {
                     MLog.d("==update-- " + downLoadSize + "/" + totalSize + " ,isDone:" + done);
-                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.VISIBLE);
-                    getHolder().getView(R.id.bt_item_download).setVisibility(View.GONE);
+                    getHolder().getView(R.id.pb_item).setVisibility(View.VISIBLE);
+                    getHolder().getView(R.id.bt_item_download).setVisibility(View.INVISIBLE);
                     ((CircleProgressView) getHolder().getView(R.id.pb_item)).setProgress(downLoadSize * 100f / totalSize);
                 }
 
@@ -156,7 +156,7 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
                         e.printStackTrace();
                     }
                     //
-                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.GONE);
+                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.INVISIBLE);
                     getHolder().getView(R.id.bt_item_download).setVisibility(View.VISIBLE);
                     //
                     activity.installAPK(packageName, path);
@@ -172,7 +172,7 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
                 @Override
                 public void onError(ApiException e) {
                     MLog.d("==onError:" + e);
-                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.GONE);
+                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.INVISIBLE);
                     getHolder().getView(R.id.bt_item_download).setVisibility(View.VISIBLE);
                 }
             };
