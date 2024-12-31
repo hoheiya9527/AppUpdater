@@ -2,9 +2,12 @@ package com.hoheiya.appupdater.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -23,7 +26,6 @@ import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog;
 import com.xuexiang.xui.widget.dialog.materialdialog.internal.MDButton;
 import com.xuexiang.xui.widget.toast.XToast;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Stack;
@@ -198,44 +200,31 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 
     public void showError(String text, boolean finish, OnButtonClick buttonClick) {
         disMissDialog();
-        materialDialog = new MaterialDialog.Builder(BaseActivity.this)
-                .title(R.string.tip)
-                .content(text)
-                .iconRes(R.mipmap.icon_warning)
-                .positiveText(R.string.confirm)
-                .onPositive((dialog, which) -> {
-                    if (buttonClick != null) {
-                        buttonClick.onClick();
-                    }
-                    if (finish) {
-                        BaseActivity.this.finish();
-                    }
-                })
-                .show();
+        materialDialog = new MaterialDialog.Builder(BaseActivity.this).title(R.string.tip).content(text).iconRes(R.mipmap.icon_warning).positiveText(R.string.confirm).onPositive((dialog, which) -> {
+            if (buttonClick != null) {
+                buttonClick.onClick();
+            }
+            if (finish) {
+                BaseActivity.this.finish();
+            }
+        }).show();
     }
 
     public void showCountDown(String text, int time, OnButtonClick buttonClick) {
         disMissDialog();
-        materialDialog = new MaterialDialog.Builder(BaseActivity.this)
-                .title(R.string.tip)
-                .content(text)
-                .positiveText(R.string.confirm)
-                .onPositive((dialog, which) -> {
-                    if (buttonClick != null) {
-                        buttonClick.onClick();
-                    }
-                    cancelTimer();
-                })
-                .show();
+        materialDialog = new MaterialDialog.Builder(BaseActivity.this).title(R.string.tip).content(text).positiveText(R.string.confirm).onPositive((dialog, which) -> {
+            if (buttonClick != null) {
+                buttonClick.onClick();
+            }
+            cancelTimer();
+        }).show();
         cancelTimer();
-        countDownTimer = new CountDownTimer(time * 1000L,
-                1000) {
+        countDownTimer = new CountDownTimer(time * 1000L, 1000) {
             @Override
             public void onTick(long l) {
                 int second = (int) (l / 1000);
                 if (materialDialog != null && materialDialog.isShowing()) {
-                    materialDialog.setActionButton(DialogAction.POSITIVE,
-                            getString(R.string.confirm) + " (" + second + "s)");
+                    materialDialog.setActionButton(DialogAction.POSITIVE, getString(R.string.confirm) + " (" + second + "s)");
                 }
             }
 
@@ -265,23 +254,15 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 
     public void showConfirm(String title, String tip, String confirmText, String cancelText, OnButtonClick confirmClick, OnButtonClick cancelClick) {
         disMissDialog();
-        materialDialog = new MaterialDialog.Builder(BaseActivity.this)
-                .title(title)
-                .iconRes(R.mipmap.icon_tip)
-                .content(tip)
-                .positiveText(confirmText)
-                .onPositive((dialog, which) -> {
-                    if (confirmClick != null) {
-                        confirmClick.onClick();
-                    }
-                })
-                .negativeText(cancelText)
-                .onNegative((dialog, which) -> {
-                    if (cancelClick != null) {
-                        cancelClick.onClick();
-                    }
-                })
-                .show();
+        materialDialog = new MaterialDialog.Builder(BaseActivity.this).title(title).iconRes(R.mipmap.icon_tip).content(tip).positiveText(confirmText).onPositive((dialog, which) -> {
+            if (confirmClick != null) {
+                confirmClick.onClick();
+            }
+        }).negativeText(cancelText).onNegative((dialog, which) -> {
+            if (cancelClick != null) {
+                cancelClick.onClick();
+            }
+        }).show();
     }
 
     /**
@@ -292,9 +273,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
      * @param inputCallback
      * @param cancelCallback
      */
-    public void showInput(String title, String tip, int inputType, String hint,
-                          MaterialDialog.InputCallback inputCallback,
-                          MaterialDialog.SingleButtonCallback cancelCallback) {
+    public void showInput(String title, String tip, int inputType, String hint, MaterialDialog.InputCallback inputCallback, MaterialDialog.SingleButtonCallback cancelCallback) {
     }
 
     /**
@@ -307,28 +286,15 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
      * @param neu
      * @param neuCallback
      */
-    public void showInput(String title, String tip, int inputType, String hint,
-                          MaterialDialog.InputCallback inputCallback,
-                          MaterialDialog.SingleButtonCallback cancelCallback,
-                          String neu, MaterialDialog.SingleButtonCallback neuCallback) {
+    public void showInput(String title, String tip, int inputType, String hint, MaterialDialog.InputCallback inputCallback, MaterialDialog.SingleButtonCallback cancelCallback, String neu, MaterialDialog.SingleButtonCallback neuCallback) {
         disMissDialog();
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(BaseActivity.this)
-                .title(title)
-                .content(tip)
-                .inputType(inputType)
-                .input(
-                        hint,
-                        "",
-                        false, inputCallback)
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(BaseActivity.this).title(title).content(tip).inputType(inputType).input(hint, "", false, inputCallback)
 //                .inputRange(3, 5)
-                .positiveText(R.string.confirm)
-                .negativeText(R.string.cancel)
+                .positiveText(R.string.confirm).negativeText(R.string.cancel)
 //                .onPositive((dialog, which) -> XToastUtils.toast("你输入了:" + dialog.getInputEditText().getText().toString()))
-                .cancelable(false)
-                .onNegative(cancelCallback);
+                .cancelable(false).onNegative(cancelCallback);
         if (!TextUtils.isEmpty(neu) && neuCallback != null) {
-            builder.neutralText(neu)
-                    .onNeutral(neuCallback);
+            builder.neutralText(neu).onNeutral(neuCallback);
         }
         materialDialog = builder.show();
         EditText editText = materialDialog.getInputEditText();
@@ -342,12 +308,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         materialDialog = new MaterialDialog.Builder(BaseActivity.this)
 //                .iconRes(R.drawable.icon_sex_man)
 //                .limitIconToDefaultSize()
-                .cancelable(false)
-                .canceledOnTouchOutside(false)
-                .title(title)
-                .content(tip)
-                .progress(true, 0)
-                .progressIndeterminateStyle(false)
+                .cancelable(false).canceledOnTouchOutside(false).title(title).content(tip).progress(true, 0).progressIndeterminateStyle(false)
 //                .negativeText(R.string.lab_cancel)
                 .show();
     }
@@ -434,14 +395,23 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     @AfterPermissionGranted(REQ_PERMISSION)
     public void requiresPermission() {
         String[] perms = getPerms();
+        //申请应用安装权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            boolean installs = getPackageManager().canRequestPackageInstalls();
+            if (!installs) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
+        }
+
         if (EasyPermissions.hasPermissions(this, perms)) {
             // Already have permission, do the thing
             // ...
             overPermission();
         } else {
             // Do not have permissions, request them now
-            EasyPermissions.requestPermissions(this, getString(R.string.permission_request),
-                    REQ_PERMISSION, perms);
+            EasyPermissions.requestPermissions(this, getString(R.string.permission_request), REQ_PERMISSION, perms);
         }
     }
 
@@ -455,8 +425,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         // Forward results to EasyPermissions
@@ -476,6 +445,15 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     protected void overPermission() {
         MLog.d("----------overPermission----------");
         BaseApplication.getInstance().init();
+
+        //申请Manager权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
+        }
     }
 
     @Override
@@ -487,7 +465,5 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         MLog.d("----------onPermissionsDenied----------");
         showError("存在被拒绝的权限，请点击确定进行重新申请", () -> requiresPermission());
     }
-
-
 
 }
