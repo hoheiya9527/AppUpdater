@@ -1,7 +1,6 @@
 package com.hoheiya.appupdater.adapter;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.view.View;
@@ -19,9 +18,7 @@ import com.hoheiya.appupdater.log.MLog;
 import com.hoheiya.appupdater.model.AppInfo;
 import com.hoheiya.appupdater.util.HttpUtil;
 import com.hoheiya.appupdater.util.IconUtil;
-import com.hoheiya.appupdater.view.BaseActivity;
 import com.hoheiya.appupdater.view.MainActivity;
-import com.xuexiang.xhttp2.callback.DownloadProgressCallBack;
 import com.xuexiang.xhttp2.exception.ApiException;
 import com.xuexiang.xui.adapter.recyclerview.BaseRecyclerAdapter;
 import com.xuexiang.xui.adapter.recyclerview.RecyclerViewHolder;
@@ -125,9 +122,13 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
                 return;
             }
             final String packageName = item.getPackageName();
+            String fileFormat = ".apk";
+            if (downloadUrl.endsWith(".xapk")) {
+                fileFormat = ".xapk";
+            }
             //检查安装包是否已存在，存在则调用安装
             if (!TextUtils.isEmpty(pathStr)) {
-                String apkPath = pathStr + File.separator + packageName + ".apk";
+                String apkPath = pathStr + File.separator + packageName + fileFormat;
                 File file = new File(apkPath);
                 boolean exists = file.exists();
                 MLog.d("==check apk isExist:" + exists);
@@ -156,7 +157,7 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
                         e.printStackTrace();
                     }
                     //
-                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.INVISIBLE);
+                    getHolder().getView(R.id.pb_item).setVisibility(View.INVISIBLE);
                     getHolder().getView(R.id.bt_item_download).setVisibility(View.VISIBLE);
                     //
                     activity.installAPK(packageName, path);
@@ -166,18 +167,18 @@ public class AppsMoreAdapter extends BaseRecyclerAdapter<AppInfo> {
                 public void onStart() {
                     MLog.d("==onStart");
                     getHolder().getView(R.id.bt_item_download).setVisibility(View.INVISIBLE);
-                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.VISIBLE);
+                    getHolder().getView(R.id.pb_item).setVisibility(View.VISIBLE);
                 }
 
                 @Override
                 public void onError(ApiException e) {
                     MLog.d("==onError:" + e);
-                    ((CircleProgressView) getHolder().getView(R.id.pb_item)).setVisibility(View.INVISIBLE);
+                    getHolder().getView(R.id.pb_item).setVisibility(View.INVISIBLE);
                     getHolder().getView(R.id.bt_item_download).setVisibility(View.VISIBLE);
                 }
             };
             //
-            HttpUtil.doDownload(downloadUrl, packageName + ".apk", callBack);
+            HttpUtil.doDownload(downloadUrl, packageName + fileFormat, callBack);
         });
 
     }
