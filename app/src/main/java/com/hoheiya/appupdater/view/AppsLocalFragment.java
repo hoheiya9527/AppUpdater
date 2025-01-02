@@ -3,7 +3,6 @@ package com.hoheiya.appupdater.view;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,17 +74,17 @@ public class AppsLocalFragment extends BaseFragment {
         recyclerView.setAdapter(adapter);
         //
         retryBt = view.findViewById(R.id.bt_retry);
-//        retryBt.setOnClickListener(view1 -> loadLocalApps());
-        retryBt.setOnClickListener(view1 -> testInstallXapk());
+        retryBt.setOnClickListener(view1 -> loadLocalApps());
+//        retryBt.setOnClickListener(view1 -> testInstallXapk());
         //
         loadLocalApps();
         return view;
     }
 
-    private void testInstallXapk() {
-        String xapk = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/Spotify_1.85.3.xapk";
-        ((MainActivity) getActivity()).installAPK("", xapk);
-    }
+//    private void testInstallXapk() {
+//        String xapk = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/Spotify_1.85.3.xapk";
+//        ((MainActivity) getActivity()).installAPK("", xapk);
+//    }
 
 
     private void loadLocalApps() {

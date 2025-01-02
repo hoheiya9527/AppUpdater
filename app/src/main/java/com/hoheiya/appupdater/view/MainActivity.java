@@ -39,7 +39,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class MainActivity extends BaseActivity {
-    private static final String ACTION_XAPK_INSTALL = "com.hoheiya.INSTALL_COMPLETE";
+    public static final String ACTION_XAPK_INSTALL = "com.hoheiya.INSTALL_COMPLETE";
     private EasyIndicator easyIndicator;
     private ViewPager viewPager;
     private ArrayList<BaseFragment> fragments;
@@ -58,7 +58,6 @@ public class MainActivity extends BaseActivity {
         filter.addDataScheme("package");
         filter.addAction(Intent.ACTION_PACKAGE_ADDED);
         filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        filter.addAction(ACTION_XAPK_INSTALL);
         registerReceiver(installReceiver, filter);
         //
     }
@@ -231,45 +230,47 @@ public class MainActivity extends BaseActivity {
     }
 
     // 批量安装拆分 APK
-    private void installSplitAPK(Context context, List<File> apkFiles) throws IOException {
-        PackageInstaller packageInstaller = context.getPackageManager().getPackageInstaller();
-        PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            params.setInstallReason(PackageManager.INSTALL_REASON_USER);
-        }
-        int sessionId = packageInstaller.createSession(params);
-        PackageInstaller.Session session = packageInstaller.openSession(sessionId);
-
-        for (File apk : apkFiles) {
-            try (FileInputStream is = new FileInputStream(apk); OutputStream outputStream = session.openWrite(apk.getName(), 0, apk.length())) {
-                byte[] buffer = new byte[4096];
-                int c;
-                while ((c = is.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, c);
-                }
-                session.fsync(outputStream);
-            } catch (Exception e) {
-                e.printStackTrace();
+    private void installSplitAPK(Context context, List<File> apkFiles) {
+        PackageInstaller.Session session = null;
+        try {
+            PackageInstaller packageInstaller = context.getPackageManager().getPackageInstaller();
+            PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                params.setInstallReason(PackageManager.INSTALL_REASON_USER);
             }
-        }
-        Intent intent = new Intent(ACTION_XAPK_INSTALL);  // 自定义广播
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, sessionId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-//        Intent intent = new Intent(this, MainActivity.class);
-//        intent.setAction(ACTION_XAPK_INSTALL);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(context, sessionId, intent, PendingIntent.FLAG_IMMUTABLE);
-//
-        session.commit(pendingIntent.getIntentSender());
-        MLog.d("==session.commit==");
-//        session.close();
-    }
+            int sessionId = packageInstaller.createSession(params);
+            session = packageInstaller.openSession(sessionId);
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        String action = intent.getAction();
-        MLog.d("==onNewIntent ==action:" + action);
-        if (action != null && action.equals(ACTION_XAPK_INSTALL)) {
-            showXapkResult(this, intent);
+            for (File apk : apkFiles) {
+                try (FileInputStream is = new FileInputStream(apk); OutputStream outputStream = session.openWrite(apk.getName(), 0, apk.length())) {
+                    byte[] buffer = new byte[4096];
+                    int c;
+                    while ((c = is.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, c);
+                    }
+                    session.fsync(outputStream);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+//            Intent intent = new Intent(ACTION_XAPK_INSTALL);  // 自定义广播
+//            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, sessionId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+            Intent intent = new Intent(this, InstallResultActivity.class);
+            intent.setAction(ACTION_XAPK_INSTALL);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, sessionId, intent, PendingIntent.FLAG_MUTABLE);
+//
+            session.commit(pendingIntent.getIntentSender());
+            MLog.d("==session.commit==");
+//        session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (session != null) {
+                session.abandon();
+            }
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 
@@ -326,9 +327,13 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             MLog.d("==onReceive:" + intent.getAction());
-            if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED) || intent.getAction().equals(Intent.ACTION_PACKAGE_REPLACED)) {
+            if (intent.getAction() == null) {
+                return;
+            }
+            if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)//
+                    || intent.getAction().equals(Intent.ACTION_PACKAGE_REPLACED)) {
                 String packageName = intent.getData().getSchemeSpecificPart();
-                Toast.makeText(context, "安装成功" + packageName, Toast.LENGTH_LONG).show();
+                showShort("安装成功" + packageName);
                 List<BaseFragment> fragmentList = fragmentAdapter.getFragmentList();
                 for (BaseFragment f : fragmentList) {
                     f.refresh();
@@ -336,36 +341,10 @@ public class MainActivity extends BaseActivity {
                 //
                 isInstalling = false;
             } else if (ACTION_XAPK_INSTALL.equals(intent.getAction())) {
-                showXapkResult(context, intent);
+//                showXapkResult(context, intent);
             }
         }
     }
 
-    private void showXapkResult(Context context, Intent intent) {
-        int status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -999);
-        String packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME);
-        String message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
-        MLog.d("==showXapkResult status:" + status + " , message:" + message);
-        switch (status) {
-            case PackageInstaller.STATUS_SUCCESS:
-                showShort(packageName + " 已成功安装");
-                break;
 
-            case PackageInstaller.STATUS_PENDING_USER_ACTION:
-                showShort("请手动完成安装");
-                // 用户需要手动确认安装
-                PendingIntent pendingIntent = intent.getParcelableExtra(Intent.EXTRA_INTENT);
-                try {
-                    if (pendingIntent != null) {
-                        context.startIntentSender(pendingIntent.getIntentSender(), null, 0, 0, 0);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            default:
-                showShort("安装失败\n[" + status + "] " + message);
-                break;
-        }
-    }
 }
