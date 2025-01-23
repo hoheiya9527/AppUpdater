@@ -9,6 +9,7 @@ import com.xuexiang.xhttp2.XHttp;
 import com.xuexiang.xhttp2.callback.DownloadProgressCallBack;
 import com.xuexiang.xhttp2.callback.impl.IProgressResponseCallBack;
 import com.xuexiang.xhttp2.exception.ApiException;
+import com.xuexiang.xhttp2.https.DefaultHostnameVerifier;
 import com.xuexiang.xhttp2.request.GetRequest;
 import com.xuexiang.xhttp2.request.PostRequest;
 
@@ -80,6 +81,8 @@ public class HttpUtil {
 //                    .headers("Content-Type", "application/x-www-form-urlencoded")//请求头
                     .keepJson(true)//不自动解析
                     .onMainThread(true)//收到响应后回到主线程
+                    .hostnameVerifier(new DefaultHostnameVerifier())//忽略SSL证书验证 1
+                    .certificates()//忽略SSL证书验证 2
                     .execute(httpCallBack);
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,6 +245,8 @@ public class HttpUtil {
                 .saveName(name)
                 .baseUrl(baseUrl)
                 .headers("User-Agent", "PostmanRuntime/7.29.2")
+                .hostnameVerifier(new DefaultHostnameVerifier())
+                .certificates()
                 .execute(callBack);
     }
 }

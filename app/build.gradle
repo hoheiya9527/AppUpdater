@@ -10,8 +10,8 @@ android {
         applicationId "com.hoheiya.appupdater"
         minSdk 23
         targetSdk 33
-        versionCode 18
-        versionName "1.1.5"
+        versionCode 19
+        versionName "1.1.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
