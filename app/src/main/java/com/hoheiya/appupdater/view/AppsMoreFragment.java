@@ -1,6 +1,5 @@
 package com.hoheiya.appupdater.view;
 
-import android.accounts.NetworkErrorException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -114,7 +113,7 @@ public class AppsMoreFragment extends BaseFragment {
         recyclerView = view.findViewById(R.id.rv_apps);
         //
         retryBt = view.findViewById(R.id.bt_retry);
-        retryBt.setOnClickListener(view1 -> loadMoreApps());
+        retryBt.setOnClickListener(view1 -> loadMoreApps(true));
         //
         WidgetUtils.initRecyclerView(recyclerView, DensityUtils.dp2px(1), Color.BLACK);
         //
@@ -238,7 +237,7 @@ public class AppsMoreFragment extends BaseFragment {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                loadMoreApps();
+                loadMoreApps(false);
             }
         }, 1000);
         return view;
@@ -269,29 +268,30 @@ public class AppsMoreFragment extends BaseFragment {
     }
 
 
-    private void loadMoreApps() {
+    private void loadMoreApps(boolean isRefresh) {
         infoLL.setVisibility(View.VISIBLE);
         loadingPb.setVisibility(View.VISIBLE);
         textView.setVisibility(View.GONE);
         retryBt.setVisibility(View.GONE);
-        disposable = Observable.create((ObservableOnSubscribe<List<AppInfo>>) emitter -> HttpUtil.getRemoteAppInfos(false, new OverCallback() {
-                    @Override
-                    public void suc(String result) {
-                        ArrayList<AppInfo> remoteApps = new Gson().fromJson(result, new TypeToken<List<AppInfo>>() {
-                        }.getType());
-                        if (remoteApps == null || remoteApps.isEmpty()) {
-                            ((BaseActivity) getActivity()).showShort("未发现应用新版本");
-                            emitter.onNext(new ArrayList<>());
-                            return;
-                        }
-                        emitter.onNext(readApps(remoteApps));
-                    }
+        disposable = Observable.create((ObservableOnSubscribe<List<AppInfo>>) emitter ->
+                        HttpUtil.getRemoteAppInfos(isRefresh, new OverCallback() {
+                            @Override
+                            public void suc(String result) {
+                                ArrayList<AppInfo> remoteApps = new Gson().fromJson(result, new TypeToken<List<AppInfo>>() {
+                                }.getType());
+                                if (remoteApps == null || remoteApps.isEmpty()) {
+                                    ((BaseActivity) getActivity()).showShort("未发现应用新版本");
+                                    emitter.onNext(new ArrayList<>());
+                                    return;
+                                }
+                                emitter.onNext(readApps(remoteApps));
+                            }
 
-                    @Override
-                    public void fail(String error) {
-                        emitter.onError(new Exception(error));
-                    }
-                }))
+                            @Override
+                            public void fail(String error) {
+                                emitter.onError(new Exception(error));
+                            }
+                        }))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
@@ -356,6 +356,6 @@ public class AppsMoreFragment extends BaseFragment {
 
     @Override
     protected void refresh() {
-        loadMoreApps();
+        loadMoreApps(true);
     }
 }
