@@ -1,5 +1,7 @@
 package com.hoheiya.appupdater.util;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.hoheiya.appupdater.callback.HttpCallBack;
@@ -17,6 +19,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 public class HttpUtil {
     private static String result;
@@ -240,13 +243,19 @@ public class HttpUtil {
     }
 
     public static void doDownload(String downloadUrl, String name, DownloadProgressCallBack<String> callBack) {
-        String baseUrl = downloadUrl.substring(0, downloadUrl.lastIndexOf("/") + 1);
-        XHttp.downLoad(downloadUrl)
-                .saveName(name)
-                .baseUrl(baseUrl)
-                .headers("User-Agent", "PostmanRuntime/7.29.2")
-                .hostnameVerifier(new DefaultHostnameVerifier())
-                .certificates()
-                .execute(callBack);
+        if (callBack != null) {
+            callBack.onStart();
+        }
+        Executors.newSingleThreadExecutor().execute(() -> {
+            String url = DocumentUtil.checkReplace(downloadUrl);
+            String baseUrl = url.substring(0, url.lastIndexOf("/") + 1);
+            new Handler(Looper.getMainLooper()).post(() -> XHttp.downLoad(url)
+                    .saveName(name)
+                    .baseUrl(baseUrl)
+                    .headers("User-Agent", "PostmanRuntime/7.29.2")
+                    .hostnameVerifier(new DefaultHostnameVerifier())
+                    .certificates()
+                    .execute(callBack));
+        });
     }
 }
